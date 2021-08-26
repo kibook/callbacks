@@ -1,72 +1,105 @@
-RegisterNetEvent("callbacks:triggerCallback", function(eventName, ticket, ...)
+--- Server -> client callbacks
+
+RegisterNetEvent("callbacks:triggerCallback", function(callbackName, ticket, ...)
 	local source = source
 	local p = promise.new()
 
-	TriggerEvent(("callbacks:startCallback:%s"):format(eventName), function(...)
+	TriggerEvent(("callbacks:startCallback:%s"):format(callbackName), function(...)
 		p:resolve{...}
 	end, source, ...)
 
 	local result = Citizen.Await(p)
-	TriggerClientEvent("callbacks:endCallback", source, eventName, ticket, table.unpack(result))
+	TriggerClientEvent("callbacks:endCallback", source, callbackName, ticket, table.unpack(result))
 end)
 
-RegisterNetEvent("callbacks:endCallback", function(eventName, ticket, ...)
-	local fn = getCallbackResolution(eventName, ticket)
+RegisterNetEvent("callbacks:endCallback", function(callbackName, ticket, ...)
+	local fn = getCallbackResolution(callbackName, ticket)
 
 	if fn then
 		fn(source, ...)
 	end
 end)
 
-exports("triggerClientCallback", function(eventName, src, cb, ...)
+--- Execute a client callback asynchronously
+-- @function triggerClientCallback
+-- @param callbackName The name of the client callback
+-- @param source The client to execute the callback on
+-- @param cb A callback function to execute when the client callback completes
+-- @param ... Additonal parameters passed to the client callback
+-- @usage exports.callbacks:triggerClientCallback("getCoords", 1, function(coords) print(coords) end)
+exports("triggerClientCallback", function(callbackName, src, cb, ...)
 	src = tonumber(src)
 
 	local ticket = generateTicket()
 
-	addCallbackResolution(eventName, ticket, function(source, ...)
+	addCallbackResolution(callbackName, ticket, function(source, ...)
 		if src == source then
 			cb(...)
-			removeCallbackResolution(eventName, ticket)
+			removeCallbackResolution(callbackName, ticket)
 		end
 	end)
 
-	TriggerClientEvent("callbacks:triggerCallback", src, eventName, ticket, ...)
+	TriggerClientEvent("callbacks:triggerCallback", src, callbackName, ticket, ...)
 end)
 
-local function deferClientCallback(eventName, src, ...)
+local function deferClientCallback(callbackName, src, ...)
 	src = tonumber(src)
 
 	local ticket = generateTicket()
 
 	local p = promise.new()
 
-	addCallbackResolution(eventName, ticket, function(source, ...)
+	addCallbackResolution(callbackName, ticket, function(source, ...)
 		if src == source then
 			p:resolve{...}
-			removeCallbackResolution(eventName, ticket)
+			removeCallbackResolution(callbackName, ticket)
 		end
 	end)
 
-	TriggerClientEvent("callbacks:triggerCallback", src, eventName, ticket, ...)
+	TriggerClientEvent("callbacks:triggerCallback", src, callbackName, ticket, ...)
 
 	return p
 end
 
+--- Create a promise for a client callback
+-- @function deferClientCallback
+-- @param callbackName The name of the client callback
+-- @param source The client to execute the callback on
+-- @param ... Additional parameters passed to the client callback
+-- @return A new promise that will be resolved when the client callback completes
+-- @usage exports.callbacks:deferClientCallback("getCoords", 1):next(function(result) print(result[1]) end)
 exports("deferClientCallback", deferClientCallback)
 
-exports("awaitClientCallback", function(eventName, src, ...)
-	local p = deferClientCallback(eventName, src, ...)
+--- Execute a client callback synchronously
+-- @function awaitClientCallback
+-- @param callbackName The name of the client callback
+-- @param source The client to execute the callback on
+-- @param ... Additional parameters passed to the client callback
+-- @return Any value(s) returned by the client callback
+-- @usage local coords = exports.callbacks:awaitClientCallback("getCoords", 1)
+exports("awaitClientCallback", function(callbackName, src, ...)
+	local p = deferClientCallback(callbackName, src, ...)
 	local result = Citizen.Await(p)
 	return table.unpack(result)
 end)
 
-exports("registerServerCallback", function(eventName, fn)
-	return AddEventHandler(("callbacks:startCallback:%s"):format(eventName), function(cb, source, ...)
+--- Register a new server callback
+-- @function registerServerCallback
+-- @param callbackName The name of the new server callback
+-- @param fn The function to execute when this server callback is executed
+-- @return The new event handler created for the server callback
+-- @usage exports.callbacks:registerServerCallback("getNumPlayers", function(source) return #GetPlayers() end)
+exports("registerServerCallback", function(callbackName, fn)
+	return AddEventHandler(("callbacks:startCallback:%s"):format(callbackName), function(cb, source, ...)
 		local result = {fn(source, ...)}
 		cb(table.unpack(result))
 	end)
 end)
 
+--- Remove a registered server callback
+-- @function removeServerCallback
+-- @param eventHandler The event handler of the server callback to remove
+-- @usage exports.callbacks:removeServerCallback(cb)
 exports("removeServerCallback", function(eventHandler)
 	RemoveEventHandler(eventHandler)
 end)
