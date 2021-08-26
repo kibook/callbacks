@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>callbacks</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>client</strong></li>
+  <li><a href="../modules/server.html">server</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>client</code></h1>
+<p>Client -> server callbacks</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#triggerServerCallback">triggerServerCallback (callbackName, cb, ...)</a></td>
+	<td class="summary">Execute a server callback asynchronously</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#deferServerCallback">deferServerCallback (callbackName, ...)</a></td>
+	<td class="summary">Create a promise for a server callback</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#awaitServerCallback">awaitServerCallback (callbackName, ...)</a></td>
+	<td class="summary">Execute a server callback synchronously</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#registerClientCallback">registerClientCallback (callbackName, fn)</a></td>
+	<td class="summary">Register a new client callback</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#removeClientCallback">removeClientCallback (callbackName)</a></td>
+	<td class="summary">Remove a registered client callback</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "triggerServerCallback"></a>
+    <strong>triggerServerCallback (callbackName, cb, ...)</strong>
+    </dt>
+    <dd>
+    Execute a server callback asynchronously
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">callbackName</span>
+         The name of the server callback
+        </li>
+        <li><span class="parameter">cb</span>
+         A callback function to execute when the server callback completes
+        </li>
+        <li><span class="parameter">...</span>
+         Additional parameters passed to the server callback
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">exports.callbacks:triggerServerCallback(<span class="string">"getNumPlayers"</span>, <span class="keyword">function</span>(numPlayers) <span class="global">print</span>(numPlayers) <span class="keyword">end</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "deferServerCallback"></a>
+    <strong>deferServerCallback (callbackName, ...)</strong>
+    </dt>
+    <dd>
+    Create a promise for a server callback
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">callbackName</span>
+         The name of the server callback
+        </li>
+        <li><span class="parameter">...</span>
+         Additional parameters passed to the server callback
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A new promise that will be resolved when the server callback completes
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">exports.callbacks:deferServerCallback(<span class="string">"getNumPlayers"</span>):<span class="global">next</span>(<span class="keyword">function</span>(numPlayers) <span class="global">print</span>(numPlayers) <span class="keyword">end</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "awaitServerCallback"></a>
+    <strong>awaitServerCallback (callbackName, ...)</strong>
+    </dt>
+    <dd>
+    Execute a server callback synchronously
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">callbackName</span>
+         The name of the server callback
+        </li>
+        <li><span class="parameter">...</span>
+         Additional parameters passed to the server callback
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Any value(s) returned by the server callback
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> numPlayers = exports.callbacks:awaitServerCallback(<span class="string">"getNumPlayers"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "registerClientCallback"></a>
+    <strong>registerClientCallback (callbackName, fn)</strong>
+    </dt>
+    <dd>
+    Register a new client callback
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">callbackName</span>
+         The name of the new client callback
+        </li>
+        <li><span class="parameter">fn</span>
+         The function to execute when this client callback is executed
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">exports.callbacks:registerClientCallback(<span class="string">"getCoords"</span>, <span class="keyword">function</span>() <span class="keyword">return</span> GetEntityCoords(PlayerPedId()) <span class="keyword">end</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "removeClientCallback"></a>
+    <strong>removeClientCallback (callbackName)</strong>
+    </dt>
+    <dd>
+    Remove a registered client callback
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">callbackName</span>
+         The name of the registered client callback
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">exports.callbacks:removeClientCallback(<span class="string">"getCoords"</span>)</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-08-26 14:58:48 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
