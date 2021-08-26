@@ -1,14 +1,13 @@
 --- Client -> server callbacks
 
 RegisterNetEvent("callbacks:triggerCallback", function(callbackName, ticket, ...)
-	local p = promise.new()
+	local fn = getCallbackHandler(callbackName)
 
-	TriggerEvent(("callbacks:startCallback:%s"):format(callbackName), function(...)
-		p:resolve{...}
-	end, ...)
-
-	local result = Citizen.Await(p)
-	TriggerServerEvent("callbacks:endCallback", callbackName, ticket, table.unpack(result))
+	if fn then
+		fn(function(...)
+			TriggerServerEvent("callbacks:endCallback", callbackName, ticket, ...)
+		end, ...)
+	end
 end)
 
 RegisterNetEvent("callbacks:endCallback", function(callbackName, ticket, ...)
@@ -75,18 +74,17 @@ end)
 -- @function registerClientCallback
 -- @param callbackName The name of the new client callback
 -- @param fn The function to execute when this client callback is executed
--- @return The new event handler created for the client callback
 -- @usage exports.callbacks:registerClientCallback("getCoords", function() return GetEntityCoords(PlayerPedId()) end)
 exports("registerClientCallback", function(callbackName, fn)
-	return AddEventHandler(("callbacks:startCallback:%s"):format(callbackName), function(cb, ...)
+	addCallbackHandler(callbackName, function(cb, ...)
 		cb(fn(...))
 	end)
 end)
 
 --- Remove a registered client callback
 -- @function removeClientCallback
--- @param eventHandler The event handler of the client callback to remove
--- @usage exports.callbacks:removeClientCallback(cb)
-exports("removeClientCallback", function(eventHandler)
-	RemoveEventHandler(eventHandler)
+-- @param callbackName The name of the registered client callback
+-- @usage exports.callbacks:removeClientCallback("getCoords")
+exports("removeClientCallback", function(callbackName)
+	removeCallbackHandler(callbackName)
 end)

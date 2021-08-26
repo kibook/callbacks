@@ -2,14 +2,13 @@
 
 RegisterNetEvent("callbacks:triggerCallback", function(callbackName, ticket, ...)
 	local source = source
-	local p = promise.new()
+	local fn = getCallbackHandler(callbackName)
 
-	TriggerEvent(("callbacks:startCallback:%s"):format(callbackName), function(...)
-		p:resolve{...}
-	end, source, ...)
-
-	local result = Citizen.Await(p)
-	TriggerClientEvent("callbacks:endCallback", source, callbackName, ticket, table.unpack(result))
+	if fn then
+		fn(function(...)
+			TriggerClientEvent("callbacks:endCallback", source, callbackName, ticket, ...)
+		end, source, ...)
+	end
 end)
 
 RegisterNetEvent("callbacks:endCallback", function(callbackName, ticket, ...)
@@ -87,19 +86,17 @@ end)
 -- @function registerServerCallback
 -- @param callbackName The name of the new server callback
 -- @param fn The function to execute when this server callback is executed
--- @return The new event handler created for the server callback
 -- @usage exports.callbacks:registerServerCallback("getNumPlayers", function(source) return #GetPlayers() end)
 exports("registerServerCallback", function(callbackName, fn)
-	return AddEventHandler(("callbacks:startCallback:%s"):format(callbackName), function(cb, source, ...)
-		local result = {fn(source, ...)}
-		cb(table.unpack(result))
+	addCallbackHandler(callbackName, function(cb, source, ...)
+		cb(fn(source, ...))
 	end)
 end)
 
 --- Remove a registered server callback
 -- @function removeServerCallback
--- @param eventHandler The event handler of the server callback to remove
--- @usage exports.callbacks:removeServerCallback(cb)
-exports("removeServerCallback", function(eventHandler)
-	RemoveEventHandler(eventHandler)
+-- @param callbackName The name of the registered server callback
+-- @usage exports.callbacks:removeServerCallback("getNumPlayers")
+exports("removeServerCallback", function(callbackName)
+	removeCallbackHandler(callbackName)
 end)

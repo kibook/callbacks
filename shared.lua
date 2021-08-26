@@ -1,19 +1,33 @@
+local callbackHandlers = {}
+
+function addCallbackHandler(callbackName, fn)
+	callbackHandlers[callbackName] = fn
+end
+
+function removeCallbackHandler(callbackName)
+	callbackHandlers[callbackName] = nil
+end
+
+function getCallbackHandler(callbackName)
+	return callbackHandlers[callbackName]
+end
+
 local callbackResolutions = {}
 
-local function getKey(eventName, ticket)
-	return ("%s:%s"):format(eventName, ticket)
+local function getKey(callbackName, ticket)
+	return ("%s:%s"):format(callbackName, ticket)
 end
 
-function addCallbackResolution(eventName, ticket, fn)
-	callbackResolutions[getKey(eventName, ticket)] = fn
+function addCallbackResolution(callbackName, ticket, fn)
+	callbackResolutions[getKey(callbackName, ticket)] = fn
 end
 
-function removeCallbackResolution(eventName, ticket)
-	callbackResolutions[getKey(eventName, ticket)] = nil
+function removeCallbackResolution(callbackName, ticket)
+	callbackResolutions[getKey(callbackName, ticket)] = nil
 end
 
-function getCallbackResolution(eventName, ticket)
-	return callbackResolutions[getKey(eventName, ticket)]
+function getCallbackResolution(callbackName, ticket)
+	return callbackResolutions[getKey(callbackName, ticket)]
 end
 
 function generateTicket()

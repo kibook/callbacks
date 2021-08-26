@@ -2,32 +2,32 @@ exports.callbacks:registerClientCallback("echo", function(...)
 	return ...
 end)
 
-exports.callbacks:registerClientCallback("getCoords", function()
-	return GetEntityCoords(PlayerPedId())
+exports.callbacks:registerClientCallback("getCoords", function(...)
+	return GetEntityCoords(PlayerPedId()), ...
 end)
 
-exports.callbacks:registerClientCallback("getIngameTime", function()
-	return ("%d:%d:%d"):format(GetClockHours(), GetClockMinutes(), GetClockSeconds())
+exports.callbacks:registerClientCallback("getIngameTime", function(...)
+	return ("%d:%d:%d"):format(GetClockHours(), GetClockMinutes(), GetClockSeconds()), ...
 end)
 
-RegisterCommand("cl_callbacks_test", function()
+RegisterNetEvent("callbacks_test", function()
 	for i = 1, 10 do
-		if i == exports.callbacks:awaitServerCallback("echo", i) then
-			print("awaitServerCallback", i, "passed")
-		else
-			print("awaitServerCallback", i, "failed")
-		end
+		local status = i == exports.callbacks:awaitServerCallback("echo", i) and "passed" or "failed"
+		print("awaitServerCallback", i, status)
 	end
 
-	for i = 1, 3 do
-		exports.callbacks:triggerServerCallback("getPlayers", function(players)
-			print("triggerServerCallback", i, json.encode(players))
-		end)
+	for i = 1, 10 do
+		exports.callbacks:triggerServerCallback("getPlayers", function(players, n)
+			local status = n == i and "passed" or "failed"
+			print("triggerServerCallback", i, json.encode(players), status)
+		end, i)
 	end
 
-	for i = 1, 3 do
-		exports.callbacks:deferServerCallback("getIdentifiers"):next(function(values)
-			print("deferServerCallback", i, json.encode(values[1]))
+	for i = 1, 10 do
+		exports.callbacks:deferServerCallback("getIdentifiers", i):next(function(values)
+			local identifiers, n = table.unpack(values)
+			local status = n == i and "passed" or "failed"
+			print("deferServerCallback", i, json.encode(identifiers), status)
 		end)
 	end
-end, false)
+end)
