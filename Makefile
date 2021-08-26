@@ -1,4 +1,4 @@
-.PHONY: doc
+.PHONY: docs
 
-doc:
+docs:
 	ldoc -d docs .
