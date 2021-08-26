@@ -3,29 +3,60 @@ RegisterNetEvent("callbacks:triggerCallback", function(eventName, ticket, ...)
 	local p = promise.new()
 
 	TriggerEvent(("callbacks:startCallback:%s"):format(eventName), function(...)
-		p:resolve({...})
+		p:resolve{...}
 	end, source, ...)
 
 	local result = Citizen.Await(p)
-	TriggerClientEvent(("callbacks:endCallback:%s:%s"):format(eventName, ticket), source, table.unpack(result))
+	TriggerClientEvent("callbacks:endCallback", source, eventName, ticket, table.unpack(result))
 end)
 
-exports("triggerClientCallback", function(eventName, src, ...)
+RegisterNetEvent("callbacks:endCallback", function(eventName, ticket, ...)
+	local fn = getCallbackResolution(eventName, ticket)
+
+	if fn then
+		fn(source, ...)
+	end
+end)
+
+exports("triggerClientCallback", function(eventName, src, cb, ...)
 	src = tonumber(src)
 
-	local p = promise.new()
-	local ticket = GetGameTimer()
+	local ticket = generateTicket()
 
-	local e = RegisterNetEvent(("callbacks:endCallback:%s:%s"):format(eventName, ticket), function(...)
+	addCallbackResolution(eventName, ticket, function(source, ...)
 		if src == source then
-			p:resolve({...})
+			cb(...)
+			removeCallbackResolution(eventName, ticket)
+		end
+	end)
+
+	TriggerClientEvent("callbacks:triggerCallback", src, eventName, ticket, ...)
+end)
+
+local function deferClientCallback(eventName, src, ...)
+	src = tonumber(src)
+
+	local ticket = generateTicket()
+
+	local p = promise.new()
+
+	addCallbackResolution(eventName, ticket, function(source, ...)
+		if src == source then
+			p:resolve{...}
+			removeCallbackResolution(eventName, ticket)
 		end
 	end)
 
 	TriggerClientEvent("callbacks:triggerCallback", src, eventName, ticket, ...)
 
+	return p
+end
+
+exports("deferClientCallback", deferClientCallback)
+
+exports("awaitClientCallback", function(eventName, src, ...)
+	local p = deferClientCallback(eventName, src, ...)
 	local result = Citizen.Await(p)
-	RemoveEventHandler(e)
 	return table.unpack(result)
 end)
 
