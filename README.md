@@ -13,7 +13,7 @@ exports.callbacks:registerServerCallback("getPlayers", function(source)
 end)
 ```
 
-### Asynchronous (`triggerServerCallback`)
+### Asynchronous
 
 ```lua
 -- client.lua
@@ -22,7 +22,7 @@ exports.callbacks:triggerServerCallback("getPlayers", function(players)
 end)
 ```
 
-### Synchronous (`awaitServerCallback`)
+### Synchronous
 
 ```lua
 -- client.lua
@@ -30,7 +30,7 @@ local players = exports.callbacks:awaitServerCallback("getPlayers")
 print(#players)
 ```
 
-### Promise-based (`deferServerCallback`)
+### Promise-based
 
 ```lua
 -- client.lua
@@ -49,7 +49,7 @@ exports.callbacks:registerClientCallback("getCoords", function()
 end)
 ```
 
-### Asynchronous (`triggerClientCallback`)
+### Asynchronous
 
 ```lua
 -- server.lua
@@ -58,7 +58,7 @@ exports.callbacks:triggerClientCallback("getCoords", 1, function(coords)
 end)
 ```
 
-### Synchronous (`awaitClientCallback`)
+### Synchronous
 
 ```lua
 -- server.lua
@@ -66,7 +66,7 @@ local coords = exports.callbacks:awaitClientCallback("getCoords", 1)
 print(coords)
 ```
 
-### Promise-based (`deferClientCallback`)
+### Promise-based
 
 ```lua
 -- server.lua
