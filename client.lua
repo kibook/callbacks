@@ -41,7 +41,14 @@ local function deferServerCallback(callbackName, ...)
 	local p = promise.new()
 
 	addCallbackResolution(callbackName, ticket, function(...)
-		p:resolve{...}
+		local results = {...}
+
+		if #results < 2 then
+			p:resolve(results[1])
+		else
+			p:resolve(results)
+		end
+
 		removeCallbackResolution(callbackName, ticket)
 	end)
 
