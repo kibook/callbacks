@@ -50,14 +50,7 @@ local function deferClientCallback(callbackName, src, ...)
 
 	addCallbackResolution(callbackName, ticket, function(source, ...)
 		if src == source then
-			local results = {...}
-
-			if #results < 2 then
-				p:resolve(results[1])
-			else
-				p:resolve(results)
-			end
-
+			p:resolve{...}
 			removeCallbackResolution(callbackName, ticket)
 		end
 	end)
