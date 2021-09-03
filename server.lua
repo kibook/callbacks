@@ -67,7 +67,19 @@ end
 -- @param ... Additional parameters passed to the client callback
 -- @return A new promise that will be resolved when the client callback completes. If the callback returns multiple values, they will be wrapped in a table.
 -- @usage exports.callbacks:deferClientCallback("getCoords", 1):next(function(coords) print(coords) end)
-exports("deferClientCallback", deferClientCallback)
+exports("deferClientCallback", function(callbackName, ...)
+	local p = promise.new()
+
+	deferClientCallback(callbackName, ...):next(function(results)
+		if #results < 2 then
+			p:resolve(results[1])
+		else
+			p:resolve(results)
+		end
+	end)
+
+	return p
+end)
 
 --- Execute a client callback synchronously
 -- @function awaitClientCallback
