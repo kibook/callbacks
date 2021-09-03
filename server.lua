@@ -72,8 +72,8 @@ end
 -- @param callbackName The name of the client callback
 -- @param source The client to execute the callback on
 -- @param ... Additional parameters passed to the client callback
--- @return A new promise that will be resolved when the client callback completes
--- @usage exports.callbacks:deferClientCallback("getCoords", 1):next(function(result) print(result[1]) end)
+-- @return A new promise that will be resolved when the client callback completes. If the callback returns multiple values, they will be wrapped in a table.
+-- @usage exports.callbacks:deferClientCallback("getCoords", 1):next(function(coords) print(coords) end)
 exports("deferClientCallback", deferClientCallback)
 
 --- Execute a client callback synchronously

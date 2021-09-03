@@ -61,7 +61,7 @@ end
 -- @function deferServerCallback
 -- @param callbackName The name of the server callback
 -- @param ... Additional parameters passed to the server callback
--- @return A new promise that will be resolved when the server callback completes
+-- @return A new promise that will be resolved when the server callback completes. If the callback returns multiple values, they will be wrapped in a table.
 -- @usage exports.callbacks:deferServerCallback("getNumPlayers"):next(function(numPlayers) print(numPlayers) end)
 exports("deferServerCallback", deferServerCallback)
 

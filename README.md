@@ -34,8 +34,7 @@ print(#players)
 
 ```lua
 -- client.lua
-exports.callbacks:deferServerCallback("getPlayers"):next(function(results)
-	local players = table.unpack(results)
+exports.callbacks:deferServerCallback("getPlayers"):next(function(players)
 	print(#players)
 end)
 ```
@@ -70,8 +69,7 @@ print(coords)
 
 ```lua
 -- server.lua
-exports.callbacks:deferClientCallback("getCoords", 1):next(function(results)
-	local coords = table.unpack(results)
+exports.callbacks:deferClientCallback("getCoords", 1):next(function(coords)
 	print(coords)
 end)
 ```
